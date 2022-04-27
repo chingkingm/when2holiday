@@ -8,7 +8,7 @@ import requests
 from hoshino import HoshinoBot, Service
 from hoshino.typing import CQEvent, MessageSegment
 
-sv = Service('when2holiday')
+sv = Service('when2holiday',enable_on_default=False)
 
 today = time.time()
 
