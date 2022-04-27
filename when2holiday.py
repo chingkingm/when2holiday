@@ -8,19 +8,28 @@ import requests
 from hoshino import HoshinoBot, Service
 from hoshino.typing import CQEvent, MessageSegment
 
-sv = Service('when2holiday',enable_on_default=False)
+sv = Service('when2holiday', enable_on_default=False)
 
 today = time.time()
+
+
+def fetch_data():
+    url = 'http://timor.tech/api/holiday/year'
+    r = requests.get(url)
+    holiday = r.json()
+    with open(data, 'w', encoding='UTF-8') as f:
+        json.dump(holiday, f)
+
 
 curpath = dirname(__file__)
 data = join(curpath, 'data.json')
 config = join(curpath, 'config.json')
-if exists(data):
-    with open(data, 'r', encoding='UTF-8') as fp:
-        root = json.load(fp)
-if exists(config):
-    with open(config, 'r', encoding='UTF-8') as fp:
-        text = json.load(fp)
+if not exists(data):
+    fetch_data()
+with open(data, 'r', encoding='UTF-8') as fp:
+    root = json.load(fp)
+with open(config, 'r', encoding='UTF-8') as fp:
+    text = json.load(fp)
 
 text1 = text['text']['text1']
 text2 = text['text']['text2']
@@ -125,8 +134,4 @@ async def year_holiday(bot, ev: CQEvent):
 # 每天四点更新假期数据
 @sv.scheduled_job('cron', hour='4')
 async def today_holiday():
-    url = 'http://timor.tech/api/holiday/year'
-    r = requests.get(url)
-    holiday = r.json()
-    with open(data, 'w', encoding='UTF-8') as f:
-        json.dump(holiday, f)
+    fetch_data()
